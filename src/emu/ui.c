@@ -912,88 +912,91 @@ static astring &warnings_string(running_machine *machine, astring &string)
 	int i;
 
 	string.reset();
+	return string; //screw your stupid warnings
+	
 
-	/* if no warnings, nothing to return */
-	if (rom_load_warnings(machine) == 0 && !(machine->gamedrv->flags & WARNING_FLAGS))
-		return string;
+	// /* if no warnings, nothing to return */
+	// if (rom_load_warnings(machine) == 0 && !(machine->gamedrv->flags & WARNING_FLAGS))
+		// return string;
 
-	/* add a warning if any ROMs were loaded with warnings */
-	if (rom_load_warnings(machine) > 0)
-	{
-		string.cat("One or more ROMs/CHDs for this game are incorrect. The " GAMENOUN " may not run correctly.\n");
-		if (machine->gamedrv->flags & WARNING_FLAGS)
-			string.cat("\n");
-	}
+	// /* add a warning if any ROMs were loaded with warnings */
+	// if (rom_load_warnings(machine) > 0)
+	// {
+		// string.cat("One or more ROMs/CHDs for this game are incorrect. The " GAMENOUN " may not run correctly.\n");
+		// if (machine->gamedrv->flags & WARNING_FLAGS)
+			// string.cat("\n");
+	// }
 
-	/* if we have at least one warning flag, print the general header */
-	if (machine->gamedrv->flags & WARNING_FLAGS)
-	{
-		string.cat("There are known problems with this " GAMENOUN "\n\n");
+	// /* if we have at least one warning flag, print the general header */
+	// if (machine->gamedrv->flags & WARNING_FLAGS)
+	// {
+		// string.cat("There are known problems with this " GAMENOUN "\n\n");
 
-		/* add one line per warning flag */
-		if (input_machine_has_keyboard(machine))
-			string.cat("The keyboard emulation may not be 100% accurate.\n");
-		if (machine->gamedrv->flags & GAME_IMPERFECT_COLORS)
-			string.cat("The colors aren't 100% accurate.\n");
-		if (machine->gamedrv->flags & GAME_WRONG_COLORS)
-			string.cat("The colors are completely wrong.\n");
-		if (machine->gamedrv->flags & GAME_IMPERFECT_GRAPHICS)
-			string.cat("The video emulation isn't 100% accurate.\n");
-		if (machine->gamedrv->flags & GAME_IMPERFECT_SOUND)
-			string.cat("The sound emulation isn't 100% accurate.\n");
-		if (machine->gamedrv->flags & GAME_NO_SOUND)
-			string.cat("The game lacks sound.\n");
-		if (machine->gamedrv->flags & GAME_NO_COCKTAIL)
-			string.cat("Screen flipping in cocktail mode is not supported.\n");
+		// /* add one line per warning flag */
+		// if (input_machine_has_keyboard(machine))
+			// string.cat("The keyboard emulation may not be 100% accurate.\n");
+		// if (machine->gamedrv->flags & GAME_IMPERFECT_COLORS)
+			// string.cat("The colors aren't 100% accurate.\n");
+		// if (machine->gamedrv->flags & GAME_WRONG_COLORS)
+			// string.cat("The colors are completely wrong.\n");
+		// if (machine->gamedrv->flags & GAME_IMPERFECT_GRAPHICS)
+			// string.cat("The video emulation isn't 100% accurate.\n");
+		// if (machine->gamedrv->flags & GAME_IMPERFECT_SOUND)
+			// string.cat("The sound emulation isn't 100% accurate.\n");
+		// if (machine->gamedrv->flags & GAME_NO_SOUND)
+			// string.cat("The game lacks sound.\n");
+		// if (machine->gamedrv->flags & GAME_NO_COCKTAIL)
+			// string.cat("Screen flipping in cocktail mode is not supported.\n");
 
-		/* check if external artwork is present before displaying this warning? */
-		if (machine->gamedrv->flags & GAME_REQUIRES_ARTWORK)
-			string.cat("The game requires external artwork files\n");
+		// /* check if external artwork is present before displaying this warning? */
+		// if (machine->gamedrv->flags & GAME_REQUIRES_ARTWORK)
+			// string.cat("The game requires external artwork files\n");
 
-		/* if there's a NOT WORKING or UNEMULATED PROTECTION warning, make it stronger */
-		if (machine->gamedrv->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION))
-		{
-			const game_driver *maindrv;
-			const game_driver *clone_of;
-			int foundworking;
+		// /* if there's a NOT WORKING or UNEMULATED PROTECTION warning, make it stronger */
+		// if (machine->gamedrv->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION))
+		// {
+			// const game_driver *maindrv;
+			// const game_driver *clone_of;
+			// int foundworking;
 
-			/* add the strings for these warnings */
-			if (machine->gamedrv->flags & GAME_UNEMULATED_PROTECTION)
-				string.cat("The game has protection which isn't fully emulated.\n");
-			if (machine->gamedrv->flags & GAME_NOT_WORKING)
-				string.cat("THIS " CAPGAMENOUN " DOESN'T WORK. The emulation for this game is not yet complete. "
-									 "There is nothing you can do to fix this problem except wait for the developers to improve the emulation.\n");
+			// /* add the strings for these warnings */
+			// if (machine->gamedrv->flags & GAME_UNEMULATED_PROTECTION)
+				// string.cat("The game has protection which isn't fully emulated.\n");
+			// if (machine->gamedrv->flags & GAME_NOT_WORKING)
+				// string.cat("THIS " CAPGAMENOUN " DOESN'T WORK. The emulation for this game is not yet complete. "
+									 // "There is nothing you can do to fix this problem except wait for the developers to improve the emulation.\n");
 
-			/* find the parent of this driver */
-			clone_of = driver_get_clone(machine->gamedrv);
-			if (clone_of != NULL && !(clone_of->flags & GAME_IS_BIOS_ROOT))
-				maindrv = clone_of;
-			else
-				maindrv = machine->gamedrv;
+			// /* find the parent of this driver */
+			// clone_of = driver_get_clone(machine->gamedrv);
+			// if (clone_of != NULL && !(clone_of->flags & GAME_IS_BIOS_ROOT))
+				// maindrv = clone_of;
+			// else
+				// maindrv = machine->gamedrv;
 
-			/* scan the driver list for any working clones and add them */
-			foundworking = FALSE;
-			for (i = 0; drivers[i] != NULL; i++)
-				if (drivers[i] == maindrv || driver_get_clone(drivers[i]) == maindrv)
-					if ((drivers[i]->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) == 0)
-					{
-						/* this one works, add a header and display the name of the clone */
-						if (!foundworking)
-							string.cat("\n\nThere are working clones of this game: ");
-						else
-							string.cat(", ");
-						string.cat(drivers[i]->name);
-						foundworking = TRUE;
-					}
+			// /* scan the driver list for any working clones and add them */
+			// foundworking = FALSE;
+			// for (i = 0; drivers[i] != NULL; i++)
+				// if (drivers[i] == maindrv || driver_get_clone(drivers[i]) == maindrv)
+					// if ((drivers[i]->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) == 0)
+					// {
+						// /* this one works, add a header and display the name of the clone */
+						// if (!foundworking)
+							// string.cat("\n\nThere are working clones of this game: ");
+						// else
+							// string.cat(", ");
+						// string.cat(drivers[i]->name);
+						// foundworking = TRUE;
+					// }
 
-			if (foundworking)
-				string.cat("\n");
-		}
-	}
+			// if (foundworking)
+				// string.cat("\n");
+		// }
+	// }
 
-	/* add the 'press OK' string */
-	string.cat("\n\nType OK or move the joystick left then right to continue");
-	return string;
+	// /* add the 'press OK' string */
+	// string.cat("\n\nType OK or move the joystick left then right to continue");
+	// return string;
+	
 }
 
 
